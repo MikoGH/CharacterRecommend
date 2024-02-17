@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+        <link rel="stylesheet" href="{{url_for('static', filename='css/main.css')}}">
+        <!-- <link rel="icon" href="{{url_for('static', filename='img/fresh_air_wind_weather_icon.png')}}"> -->
+        <title>Characters</title>
+    </head>
+    <body style = "background-color: rgb(42, 46, 50);">
+        <header>
+        </header>
+        <div style=" padding-left: 20px; padding-right: 20px; width: 60%; margin: auto; background-color: white;">
+            <form method="POST" action="{{url_for('characters')}}" name="back">
+                <button class="btn btn-outline-secondary rounded p-2 lh-1" type="submit">
+                    Back
+                </button>
+            </form>
+            <h1>{{df.loc[id,'Name']}} - TRAITS</h1>
+            <div>
+                {% for trait in df.columns %}
+                    {% if df.loc[id, trait] == 1 %}
+                        <p class="mb-1">
+                            {{trait}}
+                        </p>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <div class="table-responsive small">
+                <h1>TOP 20 similar characters</h1>
+                <table class="table table-striped table-sm">
+                    <thead>
+                        <tr>
+                            {% for column in df_similarity.columns %}
+                                <th>{{column}}</th>
+                            {% endfor %}
+                            <th>Same traits</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i, row in df_similarity.iterrows() %}
+                            <tr>
+                                {% for column in df_similarity.columns %}
+                                    <td>{{ row[column] }}</td>
+                                {% endfor %}
+                                <td>
+                                    {% for trait in df.columns %}
+                                        {% if df.loc[id, trait] == df.loc[i, trait] == 1 %}
+                                            <p class="mb-1">
+                                                {{trait}}
+                                            </p>
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                            </tr>   
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </body>
+</html>
