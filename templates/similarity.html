@@ -17,6 +17,7 @@
                 </button>
             </form>
             <h1>{{df.loc[id,'Name']}} - TRAITS</h1>
+            <h5>Anime - {{df.loc[id,'Anime']}}</h5>
             <div>
                 {% for trait in df.columns %}
                     {% if df.loc[id, trait] == 1 %}

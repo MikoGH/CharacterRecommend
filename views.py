@@ -4,7 +4,7 @@ from modules import count_cosine
 
 @app.route('/', methods=['POST', 'GET'])
 def characters():
-    headers = ['Name']
+    headers = ['Name', 'Anime']
     search_value = str(request.form.get('search'))
     if search_value == "None":
         search_value = ''

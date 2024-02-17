@@ -47,41 +47,50 @@ def get_params(df):
     return genders, hair_colors, tags
 
 def to_wide_csv(df, genders, hair_colors, tags):
-    columns = ['Name'] + list(genders.keys()) + list(hair_colors.keys()) + list(tags.keys())
+    columns = ['Name', 'Anime'] + list(genders.keys()) + list(hair_colors.keys()) + list(tags.keys())
     df_wide = pd.DataFrame(columns=columns)
     ind = 0
 
     for i, row in df.iterrows():
-        ind += 1
-        df_wide = pd.concat([df_wide, pd.DataFrame([[0]*df_wide.shape[1]], columns = df_wide.columns, index = [i])])
-        df_wide.loc[i, 'Name'] = df.loc[i, 'Names']
-        # Gender
-        gender = df.loc[i, 'Gender']
-        if gender in df_wide.columns:
-            df_wide.loc[i, gender] = 1 
-        # Hair Color
-        hair_color = df.loc[i, 'Hair_Color']
-        if hair_color in df_wide.columns:
-            df_wide.loc[i, hair_color] = 1 
-        # Tags
         row_tags = str(row.loc['Tags'])[1:-1].split(",")
-        for j in range(len(row_tags)):
-            row_tags[j] = row_tags[j].strip("' ")  
-            if row_tags[j] in df_wide.columns:
+        row_animes = str(row.loc['Anime'])[1:-1].split(",")
+        # Tags
+        row_tags.insert(0, str(df.loc[i, 'Hair_Color']))
+        row_tags.insert(0, str(df.loc[i, 'Gender']))
+        j = 0
+        while j < len(row_tags):
+            row_tags[j] = row_tags[j].strip("' ").replace('|','')
+            if not(row_tags[j] in df_wide.columns):
+                row_tags.pop(j)
+            else:
+                j += 1
+        if len(row_tags) >= 4:
+            ind += 1
+            df_wide = pd.concat([df_wide, pd.DataFrame([[0]*df_wide.shape[1]], columns = df_wide.columns, index = [i])])
+            # Name
+            df_wide.loc[i, 'Name'] = df.loc[i, 'Names']
+            # Anime
+            if len(row_animes) > 0:
+                df_wide.loc[i, 'Anime'] = sorted(row_animes, key=lambda x: len(x))[0].strip("'\" ")
+            # Tags list
+            # df_wide.loc[i, 'Tags'] = '|'.join(row_tags)
+            # Tags wide
+            for j in range(len(row_tags)):
                 df_wide.loc[i, row_tags[j]] = 1 
-        if ind*100//len(df) % 10 == 0 and (ind-1)*100//len(df) % 10 != 0:
-            print(ind*100//len(df))
+
+            if ind*100//len(df) % 10 == 0 and (ind-1)*100//len(df) % 10 != 0:
+                print(ind*100//len(df))
     # df_wide.to_csv('Anime_Traits_Wide.csv')
     df_wide.to_csv('Anime_Traits_Wide.csv', mode='a', header=False)
 
 
 df = pd.read_csv('Anime_Traits.csv')[:]
-df = df.dropna(subset=['Names','Hair_Color','Tags','Anime'])
+df = df.dropna(subset=['Names','Tags','Anime'])
 genders, hair_colors, tags = get_params(df)
 # print(len(df), len(genders), len(hair_colors), len(tags))
 # print(genders)
 # print(hair_colors)
 # print(tags)
-df = df[20000:40000]
+df = df.loc[10001:25000]
 to_wide_csv(df, genders, hair_colors, tags)
 
